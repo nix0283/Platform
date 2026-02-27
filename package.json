@@ -1,0 +1,40 @@
+{
+  "name": "trading-platform",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TradingView alternative - Crypto trading platform",
+  "author": "Arkady",
+  "license": "MIT",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "db:migrate": "pnpm --filter backend db:migrate",
+    "docker:up": "docker-compose -f docker/docker-compose.yml up -d",
+    "docker:down": "docker-compose -f docker/docker-compose.yml down",
+    
+    "ml:stage1": "node scripts/stage1-xai-synthetic.js",
+    "ml:stage2": "node scripts/stage2-rl-training.js",
+    "ml:stage3": "node scripts/stage3-graph-analysis.js",
+    "ml:stage4": "node scripts/stage4-production.js",
+    "ml:all": "node scripts/run-all-stages.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "prettier": "^3.1.0",
+    "turbo": "^1.11.0",
+    "typescript": "^5.3.0"
+  },
+  "packageManager": "pnpm@8.10.0",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}
