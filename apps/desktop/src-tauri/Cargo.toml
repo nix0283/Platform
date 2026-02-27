@@ -1,0 +1,50 @@
+[package]
+name = "trading-platform-desktop"
+version = "0.1.0"
+description = "Trading Platform Desktop Application"
+authors = ["Arkady"]
+license = "MIT"
+repository = ""
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "1.5", features = [] }
+
+[dependencies]
+tauri = { version = "1.5", features = [
+  "shell-open",
+  "dialog-all",
+  "fs-all",
+  "http-all",
+  "notification-all",
+  "global-shortcut-all",
+  "clipboard-all",
+  "window-all",
+  "process-all",
+  "system-tray",
+] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1", features = ["full"] }
+reqwest = { version = "0.11", features = ["json"] }
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+thiserror = "1"
+anyhow = "1"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+# Trading specific
+rust_decimal = { version = "1.33", features = ["serde"] }
+redis = { version = "0.23", features = ["tokio-comp"] }
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true

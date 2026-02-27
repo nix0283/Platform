@@ -1,0 +1,245 @@
+{
+  "timestamp": 1705320000000,
+  "stage": "Stage 3: Graph Correlation Analysis",
+  "duration": 2.34,
+  "graph": {
+    "nodes": 20,
+    "edges": 47,
+    "averageCorrelation": 0.423,
+    "maxCorrelation": {
+      "value": 0.847,
+      "pair": ["BTC/USDT", "ETH/USDT"]
+    },
+    "minCorrelation": {
+      "value": -0.534,
+      "pair": ["DOGE/USDT", "SHIB/USDT"]
+    }
+  },
+  "topCorrelations": [
+    {
+      "source": "BTC/USDT",
+      "target": "ETH/USDT",
+      "weight": 0.847,
+      "type": "correlation"
+    },
+    {
+      "source": "SOL/USDT",
+      "target": "AVAX/USDT",
+      "weight": 0.792,
+      "type": "correlation"
+    },
+    {
+      "source": "MATIC/USDT",
+      "target": "ETH/USDT",
+      "weight": 0.756,
+      "type": "correlation"
+    },
+    {
+      "source": "LINK/USDT",
+      "target": "UNI/USDT",
+      "weight": 0.723,
+      "type": "correlation"
+    },
+    {
+      "source": "ADA/USDT",
+      "target": "DOT/USDT",
+      "weight": 0.689,
+      "type": "correlation"
+    },
+    {
+      "source": "LTC/USDT",
+      "target": "BTC/USDT",
+      "weight": 0.654,
+      "type": "correlation"
+    },
+    {
+      "source": "ATOM/USDT",
+      "target": "DOT/USDT",
+      "weight": 0.621,
+      "type": "correlation"
+    },
+    {
+      "source": "XLM/USDT",
+      "target": "XRP/USDT",
+      "weight": 0.598,
+      "type": "correlation"
+    },
+    {
+      "source": "ALGO/USDT",
+      "target": "ATOM/USDT",
+      "weight": 0.567,
+      "type": "correlation"
+    },
+    {
+      "source": "DOGE/USDT",
+      "target": "SHIB/USDT",
+      "weight": -0.534,
+      "type": "correlation"
+    }
+  ],
+  "hubs": [
+    { "symbol": "BTC/USDT", "connections": 12 },
+    { "symbol": "ETH/USDT", "connections": 11 },
+    { "symbol": "SOL/USDT", "connections": 8 },
+    { "symbol": "AVAX/USDT", "connections": 7 },
+    { "symbol": "DOT/USDT", "connections": 6 }
+  ],
+  "signals": [
+    {
+      "symbol": "ETH/USDT",
+      "signal": "BUY",
+      "confidence": 0.783,
+      "reasons": [
+        "Ожидаемый рост: 3.24%",
+        "Корреляция с: BTC, MATIC",
+        "Положительный импульс от BTC"
+      ],
+      "relatedSymbols": [
+        { "symbol": "BTC/USDT", "correlation": 0.847, "influence": "positive" },
+        { "symbol": "MATIC/USDT", "correlation": 0.756, "influence": "positive" }
+      ]
+    },
+    {
+      "symbol": "AVAX/USDT",
+      "signal": "BUY",
+      "confidence": 0.721,
+      "reasons": [
+        "Ожидаемый рост: 2.87%",
+        "Корреляция с: SOL, ETH"
+      ],
+      "relatedSymbols": [
+        { "symbol": "SOL/USDT", "correlation": 0.792, "influence": "positive" },
+        { "symbol": "ETH/USDT", "correlation": 0.634, "influence": "positive" }
+      ]
+    },
+    {
+      "symbol": "SOL/USDT",
+      "signal": "BUY",
+      "confidence": 0.682,
+      "reasons": [
+        "Ожидаемый рост: 2.54%",
+        "Корреляция с: AVAX, ETH"
+      ],
+      "relatedSymbols": [
+        { "symbol": "AVAX/USDT", "correlation": 0.792, "influence": "positive" },
+        { "symbol": "ETH/USDT", "correlation": 0.612, "influence": "positive" }
+      ]
+    },
+    {
+      "symbol": "MATIC/USDT",
+      "signal": "BUY",
+      "confidence": 0.654,
+      "reasons": [
+        "Ожидаемый рост: 2.21%",
+        "Корреляция с: ETH, LINK"
+      ],
+      "relatedSymbols": [
+        { "symbol": "ETH/USDT", "correlation": 0.756, "influence": "positive" },
+        { "symbol": "LINK/USDT", "correlation": 0.543, "influence": "positive" }
+      ]
+    },
+    {
+      "symbol": "XRP/USDT",
+      "signal": "SELL",
+      "confidence": 0.623,
+      "reasons": [
+        "Ожидаемое падение: 1.87%",
+        "Обратная корреляция: XLM"
+      ],
+      "relatedSymbols": [
+        { "symbol": "XLM/USDT", "correlation": 0.598, "influence": "negative" },
+        { "symbol": "BTC/USDT", "correlation": 0.423, "influence": "positive" }
+      ]
+    },
+    {
+      "symbol": "DOGE/USDT",
+      "signal": "SELL",
+      "confidence": 0.584,
+      "reasons": [
+        "Ожидаемое падение: 1.54%",
+        "Обратная корреляция: SHIB"
+      ],
+      "relatedSymbols": [
+        { "symbol": "SHIB/USDT", "correlation": -0.534, "influence": "negative" },
+        { "symbol": "BTC/USDT", "correlation": 0.312, "influence": "positive" }
+      ]
+    }
+  ],
+  "anomalies": [
+    {
+      "symbol": "MATIC/USDT",
+      "anomalyType": "correlation_break",
+      "severity": 0.452,
+      "description": "Разрыв корреляции с ETH/USDT: 0.62 → 0.76",
+      "recommendation": "Monitor for potential regime change"
+    },
+    {
+      "symbol": "LINK/USDT",
+      "anomalyType": "correlation_break",
+      "severity": 0.387,
+      "description": "Разрыв корреляции с UNI/USDT: 0.58 → 0.72",
+      "recommendation": "Adjust position sizing accordingly"
+    },
+    {
+      "symbol": "AVAX/USDT",
+      "anomalyType": "isolation",
+      "severity": 0.321,
+      "description": "Аномальная изоляция: 3 связей vs 5.2 исторических",
+      "recommendation": "Watch for reversion to mean correlation"
+    }
+  ],
+  "statistics": {
+    "signalDistribution": {
+      "BUY": 4,
+      "HOLD": 14,
+      "SELL": 2
+    },
+    "anomalyTypes": {
+      "correlation_break": 2,
+      "isolation": 1,
+      "hub": 0
+    },
+    "correlationStats": {
+      "positive": 42,
+      "negative": 5,
+      "average": 0.423
+    }
+  },
+  "recommendations": [
+    {
+      "priority": "HIGH",
+      "symbol": "ETH/USDT",
+      "action": "BUY",
+      "confidence": 0.783,
+      "reasoning": "Strong positive correlation with BTC (0.847) and MATIC (0.756), expected growth 3.24%",
+      "suggestedStopLoss": 0.02,
+      "suggestedTakeProfit": 0.05
+    },
+    {
+      "priority": "MEDIUM",
+      "symbol": "AVAX/USDT",
+      "action": "BUY",
+      "confidence": 0.721,
+      "reasoning": "Strong correlation with SOL (0.792), L1 sector momentum",
+      "suggestedStopLoss": 0.025,
+      "suggestedTakeProfit": 0.06
+    },
+    {
+      "priority": "MEDIUM",
+      "symbol": "XRP/USDT",
+      "action": "SELL",
+      "confidence": 0.623,
+      "reasoning": "Negative correlation signals, expected decline 1.87%",
+      "suggestedStopLoss": 0.03,
+      "suggestedTakeProfit": 0.04
+    },
+    {
+      "priority": "LOW",
+      "symbol": "PORTFOLIO",
+      "action": "REBALANCE",
+      "confidence": 0.85,
+      "reasoning": "High correlation between BTC-ETH (0.847) reduces diversification benefits",
+      "suggestion": "Consider reducing exposure to one of BTC/ETH, add uncorrelated assets"
+    }
+  ]
+}
