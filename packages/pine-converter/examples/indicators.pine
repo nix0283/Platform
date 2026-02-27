@@ -1,0 +1,245 @@
+// ============================================
+// PINE SCRIPT EXAMPLES — Библиотека индикаторов
+// ============================================
+
+// ────────────────────────────────────────────
+// 1. SMA CROSSOVER STRATEGY
+// ────────────────────────────────────────────
+//@version=5
+strategy("SMA Crossover Strategy", overlay=true)
+
+fastLength = input.int(9, "Fast SMA Length", minval=1)
+slowLength = input.int(21, "Slow SMA Length", minval=1)
+
+fastSMA = ta.sma(close, fastLength)
+slowSMA = ta.sma(close, slowLength)
+
+plot(fastSMA, "Fast SMA", color=color.blue, linewidth=2)
+plot(slowSMA, "Slow SMA", color=color.red, linewidth=2)
+
+// Entry conditions
+longCondition = ta.crossover(fastSMA, slowSMA)
+shortCondition = ta.crossunder(fastSMA, slowSMA)
+
+if (longCondition)
+    strategy.entry("Long", strategy.long)
+
+if (shortCondition)
+    strategy.entry("Short", strategy.short)
+
+// Exit conditions
+strategy.close("Long", comment="Close Long", when=shortCondition)
+strategy.close("Short", comment="Close Short", when=longCondition)
+
+
+// ────────────────────────────────────────────
+// 2. RSI OVERSOLD/OVERBOUGHT
+// ────────────────────────────────────────────
+//@version=5
+indicator("RSI Strategy", overlay=false)
+
+rsiLength = input.int(14, "RSI Length")
+oversold = input.int(30, "Oversold Level")
+overbought = input.int(70, "Overbought Level")
+
+rsiValue = ta.rsi(close, rsiLength)
+
+plot(rsiValue, "RSI", color=color.purple)
+hline(oversold, "Oversold", color=color.green, linestyle=hline.style_dashed)
+hline(overbought, "Overbought", color=color.red, linestyle=hline.style_dashed)
+
+// Signals
+buySignal = ta.crossover(rsiValue, oversold)
+sellSignal = ta.crossunder(rsiValue, overbought)
+
+plotshape(buySignal, "Buy Signal", shape.triangleup, location.bottom, color.green, size=size.small)
+plotshape(sellSignal, "Sell Signal", shape.triangledown, location.top, color.red, size=size.small)
+
+
+// ────────────────────────────────────────────
+// 3. MACD DIVERGENCE
+// ────────────────────────────────────────────
+//@version=5
+indicator("MACD with Signals", overlay=false)
+
+fastLength = input.int(12, "Fast Length")
+slowLength = input.int(26, "Slow Length")
+signalLength = input.int(9, "Signal Length")
+
+[macdLine, signalLine, hist] = ta.macd(close, fastLength, slowLength, signalLength)
+
+plot(macdLine, "MACD", color=color.blue)
+plot(signalLine, "Signal", color=color.orange)
+plot(hist, "Histogram", style=plot.style_histogram, color=hist >= 0 ? color.green : color.red)
+
+hline(0, "Zero Line", color=color.gray)
+
+// Crossover signals
+bullishCross = ta.crossover(macdLine, signalLine)
+bearishCross = ta.crossunder(macdLine, signalLine)
+
+plotshape(bullishCross, "Bullish Cross", shape.circle, location.bottom, color.green, size=size.tiny)
+plotshape(bearishCross, "Bearish Cross", shape.circle, location.top, color.red, size=size.tiny)
+
+
+// ────────────────────────────────────────────
+// 4. BOLLINGER BANDS
+// ────────────────────────────────────────────
+//@version=5
+indicator("Bollinger Bands", overlay=true)
+
+length = input.int(20, "Length")
+mult = input.float(2.0, "Multiplier")
+
+basis = ta.sma(close, length)
+dev = mult * ta.stdev(close, length)
+upper = basis + dev
+lower = basis - dev
+
+plot(basis, "Basis", color=color.blue)
+plot(upper, "Upper", color=color.red)
+plot(lower, "Lower", color=color.green)
+
+fill(plot(upper), plot(lower), color=color.new(color.blue, 90))
+
+// Squeeze detection
+bandwidth = (upper - lower) / basis
+isSqueeze = bandwidth < ta.lowest(bandwidth, 20)[1]
+
+bgcolor(isSqueeze ? color.new(color.yellow, 90) : na)
+
+
+// ────────────────────────────────────────────
+// 5. STOCHASTIC RSI
+// ────────────────────────────────────────────
+//@version=5
+indicator("Stochastic RSI", overlay=false)
+
+rsiLength = input.int(14, "RSI Length")
+stochLength = input.int(14, "Stochastic Length")
+kSmooth = input.int(3, "K Smoothing")
+dSmooth = input.int(3, "D Smoothing")
+
+rsi = ta.rsi(close, rsiLength)
+stochRsi = ta.stoch(rsi, rsi, rsi, stochLength)
+k = ta.sma(stochRsi, kSmooth)
+d = ta.sma(k, dSmooth)
+
+plot(k, "K", color=color.blue)
+plot(d, "D", color=color.orange)
+
+hline(80, "Overbought", color=color.red, linestyle=hline.style_dashed)
+hline(20, "Oversold", color=color.green, linestyle=hline.style_dashed)
+
+
+// ────────────────────────────────────────────
+// 6. ATR TRAILING STOP
+// ────────────────────────────────────────────
+//@version=5
+indicator("ATR Trailing Stop", overlay=true)
+
+atrLength = input.int(14, "ATR Length")
+multiplier = input.float(3.0, "Multiplier")
+
+atr = ta.atr(atrLength)
+trailLong = close - (atr * multiplier)
+trailShort = close + (atr * multiplier)
+
+// Update trailing stops
+var float longStop = na
+var float shortStop = na
+
+if close > nz(longStop[1])
+    longStop := trailLong
+else
+    longStop := nz(longStop[1])
+
+if close < nz(shortStop[1])
+    shortStop := trailShort
+else
+    shortStop := nz(shortStop[1])
+
+plot(longStop, "Long Stop", color=color.green, linewidth=2)
+plot(shortStop, "Short Stop", color=color.red, linewidth=2)
+
+
+// ────────────────────────────────────────────
+// 7. VOLUME PROFILE
+// ────────────────────────────────────────────
+//@version=5
+indicator("Volume Analysis", overlay=false)
+
+volSMA = ta.sma(volume, 20)
+volRatio = volume / volSMA
+
+plot(volume, "Volume", style=plot.style_columns, color=close >= open ? color.green : color.red)
+plot(volSMA, "Volume SMA", color=color.blue, linewidth=2)
+
+// High volume nodes
+highVolume = volRatio > 2
+plotshape(highVolume, "High Volume", shape.triangleup, location.bottom, color.yellow, size=size.tiny)
+
+
+// ────────────────────────────────────────────
+// 8. ICHIMOKU CLOUD
+// ────────────────────────────────────────────
+//@version=5
+indicator("Ichimoku Cloud", overlay=true)
+
+tenkanPeriod = input.int(9, "Tenkan Period")
+kijunPeriod = input.int(26, "Kijun Period")
+senkouPeriod = input.int(52, "Senkou Period")
+
+tenkan = ta.highest(high, tenkanPeriod) + ta.lowest(low, tenkanPeriod) / 2
+kijun = ta.highest(high, kijunPeriod) + ta.lowest(low, kijunPeriod) / 2
+senkouA = (tenkan + kijun) / 2
+senkouB = ta.highest(high, senkouPeriod) + ta.lowest(low, senkouPeriod) / 2
+chikou = close[26]
+
+plot(tenkan, "Tenkan", color=color.red)
+plot(kijun, "Kijun", color=color.blue)
+plot(senkouA, "Senkou A", offset=26, color=color.green)
+plot(senkouB, "Senkou B", offset=26, color=color.red)
+plot(chikou, "Chikou", offset=-26, color=color.purple)
+
+fill(plot(senkouA, offset=26), plot(senkouB, offset=26), color=senkouA > senkouB ? color.new(color.green, 90) : color.new(color.red, 90))
+
+
+// ────────────────────────────────────────────
+// 9. MULTI-TIMEFRAME ANALYSIS
+// ────────────────────────────────────────────
+//@version=5
+indicator("Multi-Timeframe MA", overlay=true)
+
+tf1h = request.security(syminfo.tickerid, "60", ta.sma(close, 50))
+tf4h = request.security(syminfo.tickerid, "240", ta.sma(close, 50))
+tf1d = request.security(syminfo.tickerid, "D", ta.sma(close, 50))
+
+plot(tf1h, "1H MA50", color=color.blue, linewidth=1)
+plot(tf4h, "4H MA50", color=color.green, linewidth=2)
+plot(tf1d, "1D MA50", color=color.red, linewidth=3)
+
+
+// ────────────────────────────────────────────
+// 10. CUSTOM PATTERN DETECTOR
+// ────────────────────────────────────────────
+//@version=5
+indicator("Candlestick Patterns", overlay=true)
+
+// Doji
+isDoji = math.abs(close - open) <= (high - low) * 0.1
+
+// Hammer
+lowerWick = math.min(close, open) - low
+upperWick = high - math.max(close, open)
+body = math.abs(close - open)
+isHammer = lowerWick >= 2 * body and upperWick <= body
+
+// Engulfing
+bullishEngulfing = close[1] < open[1] and close > open and close > open[1] and open < close[1]
+bearishEngulfing = close[1] > open[1] and close < open and close < open[1] and open > close[1]
+
+plotshape(isDoji, "Doji", shape.diamond, location.abovebar, color.yellow, size=size.tiny)
+plotshape(isHammer, "Hammer", shape.triangleup, location.belowbar, color.green, size=size.small)
+plotshape(bullishEngulfing, "Bullish Engulfing", shape.triangleup, location.belowbar, color.green, size=size.normal)
+plotshape(bearishEngulfing, "Bearish Engulfing", shape.triangledown, location.abovebar, color.red, size=size.normal)

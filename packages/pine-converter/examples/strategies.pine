@@ -1,0 +1,324 @@
+// ============================================
+// PINE SCRIPT EXAMPLES — Торговые стратегии
+// ============================================
+
+// ────────────────────────────────────────────
+// 1. GOLDEN CROSS STRATEGY
+// ────────────────────────────────────────────
+//@version=5
+strategy("Golden Cross Strategy", overlay=true, initial_capital=10000, default_qty_type=strategy.percent_of_equity, default_qty_value=100)
+
+fastMA = ta.sma(close, 50)
+slowMA = ta.sma(close, 200)
+
+plot(fastMA, "50 SMA", color=color.blue, linewidth=2)
+plot(slowMA, "200 SMA", color=color.red, linewidth=2)
+
+goldenCross = ta.crossover(fastMA, slowMA)
+deathCross = ta.crossunder(fastMA, slowMA)
+
+if (goldenCross)
+    strategy.entry("Long", strategy.long, comment="Golden Cross")
+
+if (deathCross)
+    strategy.close("Long", comment="Death Cross")
+
+// Plot signals
+plotshape(goldenCross, "Buy", shape.triangleup, location.belowbar, color.green, size=size.large)
+plotshape(deathCross, "Sell", shape.triangledown, location.abovebar, color.red, size=size.large)
+
+
+// ────────────────────────────────────────────
+// 2. RSI MEAN REVERSION
+// ────────────────────────────────────────────
+//@version=5
+strategy("RSI Mean Reversion", overlay=true, initial_capital=10000)
+
+rsiLength = input.int(14, "RSI Length")
+oversold = input.int(30, "Oversold Level")
+overbought = input.int(70, "Overbought Level")
+stopLossPct = input.float(2.0, "Stop Loss %")
+takeProfitPct = input.float(4.0, "Take Profit %")
+
+rsi = ta.rsi(close, rsiLength)
+
+// Entry conditions
+longCondition = rsi < oversold
+shortCondition = rsi > overbought
+
+if (longCondition)
+    strategy.entry("Long", strategy.long)
+    sl = close * (1 - stopLossPct / 100)
+    tp = close * (1 + takeProfitPct / 100)
+    strategy.exit("Exit Long", "Long", stop=sl, limit=tp)
+
+if (shortCondition)
+    strategy.entry("Short", strategy.short)
+    sl = close * (1 + stopLossPct / 100)
+    tp = close * (1 - takeProfitPct / 100)
+    strategy.exit("Exit Short", "Short", stop=sl, limit=tp)
+
+// Plot RSI in separate pane
+hline(oversold, "Oversold", color=color.green)
+hline(overbought, "Overbought", color=color.red)
+
+
+// ────────────────────────────────────────────
+// 3. MACD MOMENTUM STRATEGY
+// ────────────────────────────────────────────
+//@version=5
+strategy("MACD Momentum", overlay=true, initial_capital=10000)
+
+fastLength = input.int(12, "Fast Length")
+slowLength = input.int(26, "Slow Length")
+signalLength = input.int(9, "Signal Length")
+
+[macdLine, signalLine, histogram] = ta.macd(close, fastLength, slowLength, signalLength)
+
+// Entry signals
+longCondition = ta.crossover(macdLine, signalLine) and histogram > 0
+shortCondition = ta.crossunder(macdLine, signalLine) and histogram < 0
+
+// Exit on opposite signal
+if (longCondition)
+    strategy.entry("Long", strategy.long)
+    strategy.close("Short", comment="Close Short")
+
+if (shortCondition)
+    strategy.entry("Short", strategy.short)
+    strategy.close("Long", comment="Close Long")
+
+// Trailing stop
+strategy.exit("Trailing Long", "Long", trail_points=100, trail_offset=50)
+strategy.exit("Trailing Short", "Short", trail_points=100, trail_offset=50)
+
+
+// ────────────────────────────────────────────
+// 4. BREAKOUT STRATEGY
+// ────────────────────────────────────────────
+//@version=5
+strategy("Breakout Strategy", overlay=true, initial_capital=10000)
+
+lookback = input.int(20, "Lookback Period")
+stopLossPct = input.float(3.0, "Stop Loss %")
+
+highestHigh = ta.highest(high, lookback)
+lowestLow = ta.lowest(low, lookback)
+
+plot(highestHigh, "Highest High", color=color.blue, linewidth=2)
+plot(lowestLow, "Lowest Low", color=color.red, linewidth=2)
+
+// Breakout conditions
+bullishBreakout = ta.crossover(close, highestHigh)
+bearishBreakout = ta.crossunder(close, lowestLow)
+
+if (bullishBreakout)
+    strategy.entry("Breakout Long", strategy.long)
+    sl = lowestLow[1] * (1 - stopLossPct / 100)
+    strategy.exit("Exit Long", "Breakout Long", stop=sl)
+
+if (bearishBreakout)
+    strategy.entry("Breakout Short", strategy.short)
+    sl = highestHigh[1] * (1 + stopLossPct / 100)
+    strategy.exit("Exit Short", "Breakout Short", stop=sl)
+
+
+// ────────────────────────────────────────────
+// 5. DCA (DOLLAR COST AVERAGING) STRATEGY
+// ────────────────────────────────────────────
+//@version=5
+strategy("DCA Strategy", overlay=true, initial_capital=10000)
+
+interval = input.int(7, "Buy Every N Days")
+buyAmount = input.float(100, "Buy Amount ($)")
+
+var int lastBuyDay = 0
+currentDay = dayofmonth(time)
+
+shouldBuy = (currentDay - lastBuyDay) >= interval or lastBuyDay == 0
+
+if (shouldBuy)
+    strategy.entry("DCA Buy", strategy.long, qty=buyAmount / close)
+    lastBuyDay := currentDay
+
+// Plot buy signals
+plotshape(shouldBuy, "DCA Buy", shape.triangleup, location.belowbar, color.green, size=size.normal)
+
+
+// ────────────────────────────────────────────
+// 6. GRID TRADING STRATEGY
+// ────────────────────────────────────────────
+//@version=5
+strategy("Grid Trading", overlay=true, initial_capital=10000)
+
+gridLevels = input.int(10, "Number of Grid Levels")
+gridSpacing = input.float(1.0, "Grid Spacing (%)")
+orderSize = input.float(100, "Order Size ($)")
+
+// Calculate grid levels
+highestPrice = ta.highest(high, 100)
+lowestPrice = ta.lowest(low, 100)
+priceRange = highestPrice - lowestPrice
+gridStep = priceRange / gridLevels
+
+var float[] buyOrders = array.new_float(gridLevels)
+var float[] sellOrders = array.new_float(gridLevels)
+
+// Initialize grid
+if barstate.isfirst
+    for i = 0 to gridLevels - 1
+        buyPrice = lowestPrice + (i * gridStep)
+        sellPrice = highestPrice - (i * gridStep)
+        array.set(buyOrders, i, buyPrice)
+        array.set(sellOrders, i, sellPrice)
+
+// Execute grid orders
+for i = 0 to gridLevels - 1
+    buyPrice = array.get(buyOrders, i)
+    sellPrice = array.get(sellOrders, i)
+    
+    if close <= buyPrice
+        strategy.entry("Buy " + str.tostring(i), strategy.long, qty=orderSize / close)
+    
+    if close >= sellPrice
+        strategy.entry("Sell " + str.tostring(i), strategy.short, qty=orderSize / close)
+
+
+// ────────────────────────────────────────────
+// 7. VOLATILITY BREAKOUT (ATR)
+// ────────────────────────────────────────────
+//@version=5
+strategy("ATR Volatility Breakout", overlay=true, initial_capital=10000)
+
+atrLength = input.int(14, "ATR Length")
+atrMultiplier = input.float(2.0, "ATR Multiplier")
+lookback = input.int(20, "Lookback")
+
+atr = ta.atr(atrLength)
+highestHigh = ta.highest(high, lookback)
+lowestLow = ta.lowest(low, lookback)
+
+upperBreakout = highestHigh + (atr * atrMultiplier)
+lowerBreakout = lowestLow - (atr * atrMultiplier)
+
+plot(upperBreakout, "Upper Breakout", color=color.green, linewidth=2)
+plot(lowerBreakout, "Lower Breakout", color=color.red, linewidth=2)
+
+// Entry conditions
+if ta.crossover(close, upperBreakout)
+    strategy.entry("Long Breakout", strategy.long)
+    strategy.exit("Exit Long", "Long Breakout", 
+         stop=close - (atr * atrMultiplier),
+         limit=close + (atr * atrMultiplier * 2))
+
+if ta.crossunder(close, lowerBreakout)
+    strategy.entry("Short Breakout", strategy.short)
+    strategy.exit("Exit Short", "Short Breakout",
+         stop=close + (atr * atrMultiplier),
+         limit=close - (atr * atrMultiplier * 2))
+
+
+// ────────────────────────────────────────────
+// 8. TREND FOLLOWING WITH ADX
+// ────────────────────────────────────────────
+//@version=5
+strategy("ADX Trend Following", overlay=true, initial_capital=10000)
+
+adxLength = input.int(14, "ADX Length")
+adxThreshold = input.int(25, "ADX Threshold")
+maLength = input.int(50, "Trend MA")
+
+[diplus, diminus, adx] = ta.dmi(adxLength, adxLength)
+trendMA = ta.ema(close, maLength)
+
+plot(trendMA, "Trend MA", color=color.blue, linewidth=2)
+
+// Strong trend detection
+strongUptrend = adx > adxThreshold and diplus > diminus and close > trendMA
+strongDowntrend = adx > adxThreshold and diminus > diplus and close < trendMA
+
+if (strongUptrend)
+    strategy.entry("Trend Long", strategy.long)
+
+if (strongDowntrend)
+    strategy.entry("Trend Short", strategy.short)
+
+// Exit when trend weakens
+if (adx < adxThreshold)
+    strategy.close_all(comment="Weak Trend")
+
+
+// ────────────────────────────────────────────
+// 9. PAIRS TRADING (SIMULATED)
+// ────────────────────────────────────────────
+//@version=5
+strategy("Pairs Trading", overlay=false, initial_capital=10000)
+
+// Note: In real implementation, use request.security for second symbol
+symbol2Close = close  // Placeholder for second symbol
+
+ratio = close / symbol2Close
+ratioMA = ta.sma(ratio, 50)
+ratioStd = ta.stdev(ratio, 50)
+
+upperBand = ratioMA + (2 * ratioStd)
+lowerBand = ratioMA - (2 * ratioStd)
+
+// Mean reversion signals
+if ratio < lowerBand
+    strategy.entry("Long Ratio", strategy.long)
+
+if ratio > upperBand
+    strategy.entry("Short Ratio", strategy.short)
+
+if ta.crossover(ratio, ratioMA)
+    strategy.close_all(comment="Mean Reverted")
+
+plot(ratio, "Ratio", color=color.blue)
+plot(ratioMA, "Ratio MA", color=color.orange)
+plot(upperBand, "Upper", color=color.red)
+plot(lowerBand, "Lower", color=color.green)
+
+
+// ────────────────────────────────────────────
+// 10. MULTI-STRATEGY COMBINATION
+// ────────────────────────────────────────────
+//@version=5
+strategy("Multi-Strategy Combo", overlay=true, initial_capital=10000)
+
+// Strategy weights
+rsiWeight = input.float(0.3, "RSI Weight")
+macdWeight = input.float(0.4, "MACD Weight")
+trendWeight = input.float(0.3, "Trend Weight")
+
+// RSI Component
+rsi = ta.rsi(close, 14)
+rsiScore = (rsi - 30) / 40  // Normalize to -1 to 1
+
+// MACD Component
+[macdLine, signalLine, _] = ta.macd(close, 12, 26, 9)
+macdScore = macdLine > signalLine ? 1 : -1
+
+// Trend Component
+trendMA = ta.ema(close, 50)
+trendScore = close > trendMA ? 1 : -1
+
+// Combined score
+totalScore = (rsiScore * rsiWeight) + (macdScore * macdWeight) + (trendScore * trendWeight)
+
+// Entry thresholds
+entryThreshold = input.float(0.5, "Entry Threshold")
+
+if totalScore > entryThreshold
+    strategy.entry("Combined Long", strategy.long)
+
+if totalScore < -entryThreshold
+    strategy.entry("Combined Short", strategy.short)
+
+// Exit on neutral
+if math.abs(totalScore) < 0.2
+    strategy.close_all(comment="Neutral")
+
+plot(totalScore, "Strategy Score", color=color.purple)
+hline(entryThreshold, "Long Threshold", color=color.green, linestyle=hline.style_dashed)
+hline(-entryThreshold, "Short Threshold", color=color.red, linestyle=hline.style_dashed)

@@ -1,0 +1,31 @@
+{
+  "name": "@trading-platform/auto-research",
+  "version": "1.0.0",
+  "description": "Auto-Research and Optimization System - AutoML, Walk-Forward, Demo Trading",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "lint": "eslint src/"
+  },
+  "dependencies": {
+    "@trading-platform/core": "workspace:*",
+    "@trading-platform/ml": "workspace:*",
+    "@trading-platform/auto-trading": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  },
+  "keywords": [
+    "trading",
+    "auto-research",
+    "automl",
+    "optimization",
+    "walk-forward",
+    "demo-trading"
+  ],
+  "author": "Arkady",
+  "license": "MIT"
+}

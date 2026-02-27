@@ -1,0 +1,30 @@
+{
+  "name": "@trading-platform/auto-trading",
+  "version": "1.0.0",
+  "description": "Algorithmic Trading System - Strategies, Execution, Risk Management",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "lint": "eslint src/"
+  },
+  "dependencies": {
+    "@trading-platform/core": "workspace:*",
+    "@trading-platform/ml": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  },
+  "keywords": [
+    "trading",
+    "algorithmic-trading",
+    "crypto",
+    "strategies",
+    "risk-management",
+    "position-sizing"
+  ],
+  "author": "Arkady",
+  "license": "MIT"
+}
